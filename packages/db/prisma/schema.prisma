@@ -11,14 +11,30 @@ datasource db {
 }
 
 model Post {
+  // Unique identifier for the post
   id     Int      @id @default(autoincrement())
+  // URL-friendly slug for the post
   urlId  String   @unique
+  // Post title
   title  String
+  // Short description for list views (max 200 chars)
+  description String
+  // Long-form content in Markdown format
+  content String
+  // URL to the post's featured image
+  imageUrl String
+  // Publication date of the post
   date   DateTime @default(now())
+  // Category the post belongs to (e.g., "React", "Node", etc.)
+  category String
+  // Comma-separated list of tags associated with the post
+  tags   String
+  // Number of times the post has been viewed
   views  Int      @default(0)
+  // Whether the post is published/visible
   active Boolean  @default(true)
+  // Relationship to likes on this post
   Likes  Like[]
-  // Incomplete
 }
 
 model Like {

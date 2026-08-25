@@ -1,37 +1,80 @@
 "use client";
 
+import type { ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import ThemeSwitch from "../Themes/ThemeSwitcher";
 
-function debounce<T extends (...args: Any[]) => Any>(fn: T, delay = 300) {
-  let timeoutId: Any;
-  return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn.apply(this, args), delay);
+function debounce(
+  callback: (event: ChangeEvent<HTMLInputElement>) => void,
+  delay = 300,
+) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  return (event: ChangeEvent<HTMLInputElement>) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => {
+      callback(event);
+    }, delay);
   };
 }
 
-export function TopMenu({ query }: { query?: string }) {
+export function TopMenu({ query = "" }: { query?: string }) {
   const router = useRouter();
 
   const handleSearch = debounce(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const search = event.target.value;
-      router.push(`/search?q=${search}`);
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const search = event.target.value.trim();
+
+      if (search) {
+        router.push(`/search?q=${encodeURIComponent(search)}`);
+      } else {
+        router.push("/");
+      }
     },
+    300,
   );
 
-  // TODO: create and hook the search input to the handleSearch function
-  //       make sure you are able to explain what the handleSearch is doing and what debounce does
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const search = String(formData.get("q") ?? "").trim();
+
+    if (search) {
+      router.push(`/search?q=${encodeURIComponent(search)}`);
+    } else {
+      router.push("/");
+    }
+  }
 
   return (
-    <div>
-      <form action="#" method="GET" className="grid flex-1 grid-cols-1">
-        <input />
+    <header className="flex items-center gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+      <form
+        action="/search"
+        method="GET"
+        onSubmit={handleSubmit}
+        className="relative flex-1"
+      >
+        <label htmlFor="blog-search" className="sr-only">
+          Search blog posts
+        </label>
+
+        <input
+          id="blog-search"
+          name="q"
+          type="search"
+          defaultValue={query}
+          onChange={handleSearch}
+          placeholder="Search blog posts"
+          autoComplete="off"
+          className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-primary outline-none focus:border-wsu focus:ring-2 focus:ring-wsu/20 dark:border-gray-700"
+        />
       </form>
-      <div className="flex items-center gap-x-6">
-        <ThemeSwitch />
-      </div>
-    </div>
+
+      <ThemeSwitch />
+    </header>
   );
 }

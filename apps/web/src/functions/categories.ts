@@ -1,20 +1,25 @@
-// import { posts, type Post } from "../components/data";
-
-export function categories<T>(
-  posts: { category: string; active: boolean }[],
+export function categories<T extends { category: string; active: boolean }>(
+  posts: T[],
 ): { name: string; count: number }[] {
   return posts
-    .filter((p) => p.active)
+    .filter((post) => post.active)
     .sort((a, b) => a.category.localeCompare(b.category))
     .reduce(
-      (acc, post) => {
-        const category = acc.find((c) => c.name === post.category);
-        if (category) {
-          category.count++;
+      (result, post) => {
+        const existingCategory = result.find(
+          (category) => category.name === post.category,
+        );
+
+        if (existingCategory) {
+          existingCategory.count += 1;
         } else {
-          acc.push({ name: post.category, count: 1 });
+          result.push({
+            name: post.category,
+            count: 1,
+          });
         }
-        return acc;
+
+        return result;
       },
       [] as { name: string; count: number }[],
     );

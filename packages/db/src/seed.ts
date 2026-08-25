@@ -1,34 +1,46 @@
+import { posts } from "./data";
+import { client } from "./client";
+
 export async function seed() {
-  // TODO: Uncomment below once you set up Prisma and loaded data to your database
-  // console.log("🌱 Seeding data");
-  // await client.db.like.deleteMany();
-  // await client.db.post.deleteMany();
-  // for (const post of posts) {
-  //   await client.db.post.create({
-  //     data: {
-  //       title: post.title,
-  //       content: post.content,
-  //       category: post.category,
-  //       description: post.description,
-  //       imageUrl: post.imageUrl,
-  //       tags: post.tags
-  //         .split(",")
-  //         .map((p) => p.trim())
-  //         .join(","),
-  //       urlId: post.urlId,
-  //       active: post.active,
-  //       date: post.date,
-  //       id: post.id,
-  //       views: post.views,
-  //     },
-  //   });
-  //   for (let i = 0; i < post.likes; i++) {
-  //     await client.db.like.create({
-  //       data: {
-  //         postId: post.id,
-  //         userIP: `192.168.100.${i}`,
-  //       },
-  //     });
-  //   }
-  // }
+  // Seed the database with blog posts and their likes
+  console.log("🌱 Seeding data");
+  
+  // Clear existing data to ensure clean state
+  await client.db.like.deleteMany();
+  await client.db.post.deleteMany();
+  
+  // Insert each post from the data array
+  for (const post of posts) {
+    await client.db.post.create({
+      data: {
+        // Core post information
+        id: post.id,
+        title: post.title,
+        urlId: post.urlId,
+        description: post.description,
+        content: post.content,
+        imageUrl: post.imageUrl,
+        date: post.date,
+        category: post.category,
+        tags: post.tags
+          .split(",")
+          .map((p) => p.trim())
+          .join(","),
+        views: post.views,
+        active: post.active,
+      },
+    });
+    
+    // Create likes for each post (using IP addresses as user identifiers)
+    for (let i = 0; i < post.likes; i++) {
+      await client.db.like.create({
+        data: {
+          postId: post.id,
+          userIP: `192.168.100.${i}`,
+        },
+      });
+    }
+  }
+  
+  console.log("✅ Seeding completed");
 }
