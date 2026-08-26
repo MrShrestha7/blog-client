@@ -1,14 +1,26 @@
-export function cx(
-  ...classes: Array<
-    string | Record<string, boolean | null | undefined> | null | undefined
-  >
-): string {
-  // class helper that turns a list of classes into a single string
-  // if one of the classes is an object, it will add the key if the value is truthy
+export type ClassValue =
+  | string
+  | null
+  | undefined
+  | false
+  | Record<string, boolean | null | undefined>;
 
-  // e.g. cx("foo", "bar") => "foo bar"
-  // e.g. cx("foo", { bar: true }) => "foo bar"
-  return "";
+export function classes(...values: ClassValue[]): string {
+  return values
+    .flatMap((value) => {
+      if (!value) {
+        return [];
+      }
+
+      if (typeof value === "string") {
+        return [value];
+      }
+
+      return Object.entries(value)
+        .filter(([, enabled]) => Boolean(enabled))
+        .map(([className]) => className);
+    })
+    .join(" ");
 }
 
-export default cx;
+export const cx = classes;

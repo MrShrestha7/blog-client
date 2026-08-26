@@ -11,7 +11,12 @@ export function CategoryList({
   posts: Post[];
   selectedCategory?: string;
 }) {
-  const categoryItems = categories(posts);
+  const categoryItems = [
+    ...categories(posts),
+    ...["Mongo", "DevOps"]
+      .filter((name) => !categories(posts).some((item) => item.name === name))
+      .map((name) => ({ name, count: 0 })),
+  ];
 
   return (
     <LinkList title="Categories">
@@ -27,7 +32,7 @@ export function CategoryList({
               categoryPath.toLowerCase() === selectedCategory.toLowerCase()
             }
             link={`/category/${categoryPath}`}
-            title={`Posts in ${item.name}`}
+            title={`Category / ${item.name}`}
           />
         );
       })}

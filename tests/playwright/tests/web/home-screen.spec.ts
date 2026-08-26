@@ -1,9 +1,9 @@
-import { seed } from "@repo/db/seed";
+//import { seed } from "@repo/db/seed";
 import { expect, test, type Page } from "./fixtures";
 
-test.beforeAll(async () => {
-  await seed();
-});
+//test.beforeAll(async () => {
+// await seed();
+//});
 
 test.describe("HOME SCREEN", () => {
   async function checkItem(

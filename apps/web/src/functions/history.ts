@@ -13,27 +13,29 @@ const monthNames = [
   "December",
 ];
 
-export function history(posts: { date: Date; active: boolean }[]): string[] {
-  const values = posts
-    .filter((post) => post.active)
-    .map((post) => {
-      const date = new Date(post.date);
+export function history(
+  posts: { date: Date; active: boolean }[],
+): { month: number; year: number; count: number }[] {
+  const grouped = new Map<string, { month: number; year: number; count: number }>();
 
-      return {
-        date,
-        value: `${monthNames[date.getMonth()]}, ${date.getFullYear()}`,
-      };
-    });
+  for (const post of posts) {
+    if (!post.active) continue;
 
-  const unique = new Map<string, Date>();
+    const date = new Date(post.date);
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const key = `${year}-${month}`;
+    const current = grouped.get(key);
 
-  for (const item of values) {
-    if (!unique.has(item.value)) {
-      unique.set(item.value, item.date);
+    if (current) {
+      current.count += 1;
+    } else {
+      grouped.set(key, { month, year, count: 1 });
     }
   }
 
-  return [...unique.entries()]
-    .sort(([, dateA], [, dateB]) => dateB.getTime() - dateA.getTime())
-    .map(([value]) => value);
+  return [...grouped.values()].sort(
+    (historyA, historyB) =>
+      historyB.year - historyA.year || historyB.month - historyA.month,
+  );
 }

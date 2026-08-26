@@ -1,5 +1,6 @@
 import type { Post } from "@repo/db/data";
 import { tags } from "@/functions/tags";
+import { toUrlPath } from "@repo/utils/url";
 import { LinkList } from "./LinkList";
 import { SummaryItem } from "./SummaryItem";
 
@@ -15,23 +16,14 @@ export function TagList({
   return (
     <LinkList title="Tags">
       {postTags.map((tag) => {
-        const count = posts.filter(
-          (post) =>
-            post.active &&
-            post.tags
-              .split(",")
-              .map((value) => value.trim().toLowerCase())
-              .includes(tag.toLowerCase()),
-        ).length;
-
         return (
           <SummaryItem
-            key={tag}
-            count={count}
-            name={tag}
-            isSelected={tag.toLowerCase() === selectedTag.toLowerCase()}
-            link={`/search?tag=${encodeURIComponent(tag)}`}
-            title={`Posts tagged ${tag}`}
+            key={tag.name}
+            count={tag.count}
+            name={tag.name}
+            isSelected={tag.name.toLowerCase() === selectedTag.toLowerCase()}
+            link={`/tags/${toUrlPath(tag.name)}`}
+            title={`Tag / ${tag.name}`}
           />
         );
       })}

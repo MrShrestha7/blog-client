@@ -1,19 +1,13 @@
-import { posts } from "./data";
-import { client } from "./client";
+import { posts } from "./data.js";
+import { client } from "./client.js";
 
 export async function seed() {
-  // Seed the database with blog posts and their likes
-  console.log("🌱 Seeding data");
-  
-  // Clear existing data to ensure clean state
   await client.db.like.deleteMany();
   await client.db.post.deleteMany();
-  
-  // Insert each post from the data array
+
   for (const post of posts) {
     await client.db.post.create({
       data: {
-        // Core post information
         id: post.id,
         title: post.title,
         urlId: post.urlId,
@@ -24,23 +18,20 @@ export async function seed() {
         category: post.category,
         tags: post.tags
           .split(",")
-          .map((p) => p.trim())
+          .map((tag: string) => tag.trim())
           .join(","),
         views: post.views,
         active: post.active,
       },
     });
-    
-    // Create likes for each post (using IP addresses as user identifiers)
-    for (let i = 0; i < post.likes; i++) {
+
+    for (let index = 0; index < post.likes; index += 1) {
       await client.db.like.create({
         data: {
           postId: post.id,
-          userIP: `192.168.100.${i}`,
+          userIP: `192.168.100.${index}`,
         },
       });
     }
   }
-  
-  console.log("✅ Seeding completed");
 }

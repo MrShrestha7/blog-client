@@ -22,12 +22,15 @@ export function SummaryItem({
         className={[
           "flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors",
           isSelected
-            ? "bg-gray-100 font-semibold text-primary dark:bg-gray-800"
+            ? "selected bg-gray-100 font-semibold text-primary dark:bg-gray-800"
             : "text-secondary hover:bg-gray-100 hover:text-primary dark:hover:bg-gray-800",
         ].join(" ")}
       >
         <span>{name}</span>
-        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800">
+        <span
+          data-test-id="post-count"
+          className="rounded-full bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800"
+        >
           {count}
         </span>
       </Link>

@@ -3,21 +3,6 @@ import type { Post } from "@repo/db/data";
 import { LinkList } from "./LinkList";
 import { SummaryItem } from "./SummaryItem";
 
-const monthNumbers: Record<string, string> = {
-  January: "1",
-  February: "2",
-  March: "3",
-  April: "4",
-  May: "5",
-  June: "6",
-  July: "7",
-  August: "8",
-  September: "9",
-  October: "10",
-  November: "11",
-  December: "12",
-};
-
 export function HistoryList({
   selectedYear = "",
   selectedMonth = "",
@@ -32,22 +17,12 @@ export function HistoryList({
   return (
     <LinkList title="History">
       {historyItems.map((item) => {
-        const [month, year] = item.split(",").map((value) => value.trim());
-        const monthNumber = monthNumbers[month];
-
-        if (!month || !year || !monthNumber) {
-          return null;
-        }
-
-        const count = posts.filter((post) => {
-          const date = new Date(post.date);
-
-          return (
-            post.active &&
-            date.getFullYear() === Number(year) &&
-            date.getMonth() + 1 === Number(monthNumber)
-          );
-        }).length;
+        const month = new Date(2000, item.month - 1).toLocaleString("en", {
+          month: "long",
+        });
+        const year = String(item.year);
+        const monthNumber = String(item.month);
+        const label = `${month}, ${year}`;
 
         const isSelected =
           selectedYear === year &&
@@ -56,12 +31,12 @@ export function HistoryList({
 
         return (
           <SummaryItem
-            key={`${year}-${monthNumber}`}
-            count={count}
-            name={item}
+            key={`${item.year}-${item.month}`}
+            count={item.count}
+            name={label}
             isSelected={isSelected}
             link={`/history/${year}/${monthNumber}`}
-            title={`Posts from ${item}`}
+            title={`History / ${label}`}
           />
         );
       })}

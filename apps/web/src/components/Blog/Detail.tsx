@@ -52,7 +52,9 @@ export async function BlogDetail({ post }: { post: Post }) {
         </div>
 
         <h1 className="mt-4 text-4xl font-bold tracking-tight text-primary">
-          {post.title}
+          <Link href={`/post/${post.urlId}`} className="hover:text-wsu">
+            {post.title}
+          </Link>
         </h1>
 
         <img
@@ -73,6 +75,7 @@ export async function BlogDetail({ post }: { post: Post }) {
         </div>
 
         <div
+          data-test-id="content-markdown"
           className="prose prose-lg mt-10 max-w-none text-primary"
           dangerouslySetInnerHTML={{ __html: content }}
         />

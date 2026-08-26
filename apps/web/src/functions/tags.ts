@@ -1,7 +1,7 @@
 export function tags(
   posts: { tags: string; active: boolean }[],
-): string[] {
-  const uniqueTags = new Set<string>();
+): { name: string; count: number }[] {
+  const tagCounts = new Map<string, number>();
 
   for (const post of posts) {
     if (!post.active) continue;
@@ -10,10 +10,12 @@ export function tags(
       const cleanedTag = tag.trim();
 
       if (cleanedTag) {
-        uniqueTags.add(cleanedTag);
+        tagCounts.set(cleanedTag, (tagCounts.get(cleanedTag) ?? 0) + 1);
       }
     }
   }
 
-  return [...uniqueTags].sort((a, b) => a.localeCompare(b));
+  return [...tagCounts.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((tagA, tagB) => tagA.name.localeCompare(tagB.name));
 }
