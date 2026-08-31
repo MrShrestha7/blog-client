@@ -1,4 +1,7 @@
 import "dotenv/config";
+import crypto from "crypto";
+import fs from "fs";
+import path from "path";
 
 import { test as base, type BrowserContext, type Page } from "@playwright/test";
 
@@ -7,9 +10,66 @@ export const e2epassword = "superpassword";
 // TODO: Implement seed
 export async function seedData(...options: any[]) {}
 
-// Declare the types of your fixtures.
+const authFile = path.join(process.cwd(), ".auth", "user.json");
+
+function base64UrlEncode(value: string) {
+  return Buffer.from(value)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function signTestToken(payload: Record<string, unknown>) {
+  const secret = process.env.JWT_SECRET || "secret";
+  const header = base64UrlEncode(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const claims = {
+    ...payload,
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8,
+  };
+  const body = base64UrlEncode(JSON.stringify(claims));
+  const signature = crypto
+    .createHmac("sha256", secret)
+    .update(`${header}.${body}`)
+    .digest("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+
+  return `${header}.${body}.${signature}`;
+}
+
+function ensureAuthStorage() {
+  fs.mkdirSync(path.dirname(authFile), { recursive: true });
+
+  if (!fs.existsSync(authFile)) {
+    const token = signTestToken({ role: "admin" });
+
+    fs.writeFileSync(
+      authFile,
+      JSON.stringify(
+        {
+          cookies: [
+            {
+              name: "auth_token",
+              value: token,
+              domain: "localhost",
+              secure: false,
+              expires: Math.floor(Date.now() / 1000) + 60 * 60 * 8,
+              path: "/",
+              httpOnly: true,
+              sameSite: "Lax",
+            },
+          ],
+        },
+        null,
+        2,
+      ),
+    );
+  }
+}
+
 type MyFixtures = {
-  // adminPage: Page;
   userPage: Page;
 };
 
@@ -34,19 +94,12 @@ export async function setOptions(
 
 export * from "@playwright/test";
 export const test = base.extend<MyFixtures>({
-  // adminPage: async ({ browser }, use) => {
-  //   const context = await browser.newContext({
-  //     storageState: ".auth/admin.json",
-  //   });
-  //   const adminPage = await context.newPage(); //  new AdminPage(await context.newPage());
-  //   await use(adminPage);
-  //   await context.close();
-  // },
   userPage: async ({ browser }, use) => {
+    ensureAuthStorage();
     const context = await browser.newContext({
-      storageState: ".auth/user.json",
+      storageState: authFile,
     });
-    const userPage = await context.newPage(); //  new UserPage(await context.newPage());
+    const userPage = await context.newPage();
     await use(userPage);
     await context.close();
   },
