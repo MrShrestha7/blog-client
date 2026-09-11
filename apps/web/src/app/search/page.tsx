@@ -1,4 +1,4 @@
-import { posts } from "@repo/db/data";
+import { client } from "@repo/db/client";
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
 
@@ -16,11 +16,13 @@ export default async function Page({
   const searchTerm = q.trim().toLowerCase();
   const tagTerm = tag.trim().toLowerCase();
 
-  const filteredPosts = posts.filter((post) => {
-    if (!post.active) {
-      return false;
-    }
+  const posts = await client.db.post.findMany({
+    where: { active: true },
+    orderBy: { date: "desc" },
+    include: { _count: { select: { Likes: true } } },
+  });
 
+  const filteredPosts = posts.filter((post) => {
     const matchesSearch =
       !searchTerm ||
       post.title.toLowerCase().includes(searchTerm) ||
@@ -36,9 +38,15 @@ export default async function Page({
     return matchesSearch && matchesTag;
   });
 
+  const mappedPosts = filteredPosts.map((post) => ({
+    ...post,
+    date: new Date(post.date),
+    likes: post._count.Likes,
+  }));
+
   return (
     <AppLayout query={q}>
-      <Main posts={filteredPosts} />
+      <Main posts={mappedPosts} />
     </AppLayout>
   );
 }

@@ -1,6 +1,9 @@
+"use client";
+
 import type { Post } from "@repo/db/data";
 import Link from "next/link";
 import { marked } from "marked";
+import { useState } from "react";
 
 function formatDate(date: Date) {
   const months = [
@@ -23,13 +26,32 @@ function formatDate(date: Date) {
   } ${date.getFullYear()}`;
 }
 
-export async function BlogDetail({ post }: { post: Post }) {
-  const content = await marked.parse(post.content);
+export function BlogDetail({ post }: { post: Post & { liked?: boolean } }) {
+  const [liked, setLiked] = useState(Boolean(post.liked));
+  const [likes, setLikes] = useState(post.likes);
+  const content = marked.parse(post.content);
 
   const postTags = post.tags
     .split(",")
     .map((tag) => tag.trim())
     .filter(Boolean);
+
+  const handleLikeToggle = async () => {
+    const method = liked ? "DELETE" : "POST";
+    const response = await fetch("/api/likes", {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postId: post.id }),
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data = (await response.json()) as { liked: boolean; likes: number };
+    setLiked(data.liked);
+    setLikes(data.likes);
+  };
 
   return (
     <article
@@ -60,7 +82,7 @@ export async function BlogDetail({ post }: { post: Post }) {
         <img
           src={post.imageUrl}
           alt=""
-          className="mt-8 max-h-[ thirtyrem ] w-full rounded-2xl object-cover"
+          className="mt-8 max-h-[30rem] w-full rounded-2xl object-cover"
         />
 
         <div className="mt-6 flex flex-wrap gap-3 text-sm text-secondary">
@@ -71,8 +93,17 @@ export async function BlogDetail({ post }: { post: Post }) {
 
         <div className="mt-4 flex gap-6 text-sm text-secondary">
           <span>{post.views} views</span>
-          <span>{post.likes} likes</span>
+          <span>{likes} likes</span>
         </div>
+
+        <button
+          type="button"
+          data-test-id="like-button"
+          onClick={handleLikeToggle}
+          className="mt-4 rounded-md border border-primary px-4 py-2 text-sm font-medium"
+        >
+          {liked ? "Unlike" : "Like"}
+        </button>
 
         <div
           data-test-id="content-markdown"

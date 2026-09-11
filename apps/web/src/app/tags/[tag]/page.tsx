@@ -1,4 +1,4 @@
-import { posts } from "@repo/db/data";
+import { client } from "@repo/db/client";
 import { toUrlPath } from "@repo/utils/url";
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
@@ -15,20 +15,26 @@ export default async function Page({
 }) {
   const { tag } = await params;
 
-  // Filter posts by:
-  // 1. Active status (only show published posts)
-  // 2. Tag match (split comma-separated tags and check each one)
-  const filteredPosts = posts.filter((post) => {
-    if (!post.active) return false;
+  const posts = await client.db.post.findMany({
+    where: { active: true },
+    orderBy: { date: "desc" },
+    include: { _count: { select: { Likes: true } } },
+  });
 
-    // Split tags and check if any tag matches (case-insensitive)
+  const filteredPosts = posts.filter((post) => {
     const postTags = post.tags.split(",").map((t) => t.trim().toLowerCase());
     return postTags.some((value) => toUrlPath(value) === tag.toLowerCase());
   });
 
+  const mappedPosts = filteredPosts.map((post) => ({
+    ...post,
+    date: new Date(post.date),
+    likes: post._count.Likes,
+  }));
+
   return (
     <AppLayout>
-      <Main posts={filteredPosts} />
+      <Main posts={mappedPosts} />
     </AppLayout>
   );
 }

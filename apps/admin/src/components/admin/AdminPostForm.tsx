@@ -3,7 +3,8 @@
 import { marked } from "marked";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getStoredPosts, saveStoredPosts, slugify, type AdminPost } from "../../utils/admin-data";
+import { slugify } from "../../utils/admin-data";
+import { createPost, updatePost, type AdminPost } from "../../utils/posts-actions";
 
 const emptyForm = {
   title: "",
@@ -75,7 +76,7 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
     return nextErrors;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const nextErrors = validate();
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
@@ -84,45 +85,26 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
       return;
     }
 
-    const posts = getStoredPosts();
+    const postInput = {
+      title: form.title,
+      category: form.category,
+      description: form.description,
+      content: form.content,
+      imageUrl: form.imageUrl,
+      tags: form.tags,
+      urlId: slugify(form.title),
+    };
+
     if (mode === "edit" && initialPost) {
-      const updated = posts.map((post) =>
-        post.id === initialPost.id
-          ? {
-              ...post,
-              title: form.title,
-              category: form.category,
-              description: form.description,
-              content: form.content,
-              imageUrl: form.imageUrl,
-              tags: form.tags,
-              urlId: slugify(form.title),
-            }
-          : post,
-      );
-      saveStoredPosts(updated);
+      await updatePost(initialPost.id, postInput);
     } else {
-      const nextId = Math.max(0, ...posts.map((post) => post.id)) + 1;
-      const created: AdminPost = {
-        id: nextId,
-        title: form.title,
-        urlId: slugify(form.title) || `post-${nextId}`,
-        description: form.description,
-        content: form.content,
-        imageUrl: form.imageUrl,
-        date: new Date(),
-        category: form.category,
-        tags: form.tags,
-        views: 0,
-        likes: 0,
-        active: true,
-      };
-      saveStoredPosts([created, ...posts]);
+      await createPost({ ...postInput, urlId: postInput.urlId || `post-${Date.now()}` });
     }
 
     setErrors({});
     setGeneralError("");
     setSuccessMessage("Post updated successfully");
+    router.refresh();
   };
 
   const handlePreviewToggle = () => {

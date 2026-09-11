@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
-import { posts } from "@repo/db/data";
+import { client } from "@repo/db/client";
 
 export default async function Page({
   params,
@@ -9,19 +9,30 @@ export default async function Page({
 }) {
   const { year, month } = await params;
 
+  const posts = await client.db.post.findMany({
+    where: { active: true },
+    orderBy: { date: "desc" },
+    include: { _count: { select: { Likes: true } } },
+  });
+
   const filteredPosts = posts.filter((post) => {
     const date = new Date(post.date);
 
     return (
-      post.active &&
       date.getFullYear() === Number(year) &&
       date.getMonth() + 1 === Number(month)
     );
   });
 
+  const mappedPosts = filteredPosts.map((post) => ({
+    ...post,
+    date: new Date(post.date),
+    likes: post._count.Likes,
+  }));
+
   return (
     <AppLayout>
-      <Main posts={filteredPosts} />
+      <Main posts={mappedPosts} />
     </AppLayout>
   );
 }

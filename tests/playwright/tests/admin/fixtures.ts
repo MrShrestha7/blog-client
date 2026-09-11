@@ -42,31 +42,29 @@ function signTestToken(payload: Record<string, unknown>) {
 function ensureAuthStorage() {
   fs.mkdirSync(path.dirname(authFile), { recursive: true });
 
-  if (!fs.existsSync(authFile)) {
-    const token = signTestToken({ role: "admin" });
+  const token = signTestToken({ role: "admin" });
 
-    fs.writeFileSync(
-      authFile,
-      JSON.stringify(
-        {
-          cookies: [
-            {
-              name: "auth_token",
-              value: token,
-              domain: "localhost",
-              secure: false,
-              expires: Math.floor(Date.now() / 1000) + 60 * 60 * 8,
-              path: "/",
-              httpOnly: true,
-              sameSite: "Lax",
-            },
-          ],
-        },
-        null,
-        2,
-      ),
-    );
-  }
+  fs.writeFileSync(
+    authFile,
+    JSON.stringify(
+      {
+        cookies: [
+          {
+            name: "auth_token",
+            value: token,
+            domain: "localhost",
+            secure: false,
+            expires: Math.floor(Date.now() / 1000) + 60 * 60 * 8,
+            path: "/",
+            httpOnly: true,
+            sameSite: "Lax",
+          },
+        ],
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 type MyFixtures = {

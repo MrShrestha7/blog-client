@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getStoredPosts, saveStoredPosts, type AdminPost } from "../../utils/admin-data";
+import { getPosts, toggleActive as toggleActivePost, type AdminPost } from "../../utils/posts-actions";
 
 const formatDate = (value: Date | string) => {
   const date = new Date(value);
@@ -27,7 +27,7 @@ export default function AdminHome() {
   const [sortBy, setSortBy] = useState("date-desc");
 
   useEffect(() => {
-    setPosts(getStoredPosts());
+    getPosts().then(setPosts);
   }, []);
 
   const visiblePosts = useMemo(() => {
@@ -87,13 +87,11 @@ export default function AdminHome() {
     window.location.href = "/";
   }
 
-  function toggleActive(postId: number) {
-    const updated = posts.map((post) =>
-      post.id === postId ? { ...post, active: !post.active } : post,
+  async function toggleActive(postId: number) {
+    const updatedPost = await toggleActivePost(postId);
+    setPosts((current) =>
+      current.map((post) => (post.id === postId ? updatedPost : post)),
     );
-    setPosts(updated);
-    saveStoredPosts(updated);
-    window.alert("Post status updated");
   }
 
   return (

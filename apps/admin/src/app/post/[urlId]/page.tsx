@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { isLoggedIn } from "../../../utils/auth";
 import AdminPostForm from "../../../components/admin/AdminPostForm";
-import { getPostByUrlId } from "../../../utils/admin-data";
+import { getPostByUrlId } from "../../../utils/posts-actions";
 
 export default async function EditPostPage({ params }: { params: Promise<{ urlId: string }> }) {
   const loggedIn = await isLoggedIn();
@@ -10,7 +10,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ urlId
   }
 
   const { urlId } = await params;
-  const post = getPostByUrlId(urlId);
+  const post = await getPostByUrlId(urlId);
 
   if (!post) {
     notFound();
