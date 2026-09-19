@@ -68,7 +68,7 @@ test.describe("ADMIN HOME SCREEN", () => {
       ).toBeVisible();
 
       // LIST SCREEN > Article list is only accessible to logged-in users.
-      await expect(await userPage.locator("article").count()).toBe(4);
+      await expect(userPage.locator("article")).toHaveCount(4);
     },
   );
 });

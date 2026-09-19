@@ -18,7 +18,7 @@ test.describe("ADMIN LIST SCREEN", () => {
     async ({ userPage }) => {
       await userPage.goto("/");
 
-      await expect(await userPage.locator("article").count()).toBe(4);
+      await expect(userPage.locator("article")).toHaveCount(4);
     },
   );
 
@@ -32,7 +32,7 @@ test.describe("ADMIN LIST SCREEN", () => {
 
       // LIST SCREEN > On the top is a filter screen that allows to filter posts by Title or content
       await userPage.getByLabel("Filter by Content:").fill("Boost");
-      await expect(await userPage.locator("article").count()).toBe(1);
+      await expect(userPage.locator("article")).toHaveCount(1);
       await expect(
         userPage.getByText("Boost your conversion rate"),
       ).toBeVisible();
@@ -43,7 +43,7 @@ test.describe("ADMIN LIST SCREEN", () => {
       ).toBeVisible();
 
       await userPage.getByLabel("Filter by Content:").clear();
-      await expect(await userPage.locator("article").count()).toBe(4);
+      await expect(userPage.locator("article")).toHaveCount(4);
     },
   );
 
@@ -57,7 +57,7 @@ test.describe("ADMIN LIST SCREEN", () => {
 
       // LIST SCREEN > On the top is a filter screen that allows to filter posts by tags
       await userPage.getByLabel("Filter by Tag:").fill("Front");
-      await expect(await userPage.locator("article").count()).toBe(2);
+      await expect(userPage.locator("article")).toHaveCount(2);
       await expect(
         userPage.getByText("Better front ends with Fatboy Slim"),
       ).toBeVisible();
@@ -80,7 +80,7 @@ test.describe("ADMIN LIST SCREEN", () => {
       await userPage
         .getByLabel("Filter by Date Created:")
         .pressSequentially("01012022");
-      await expect(await userPage.locator("article").count()).toBe(2);
+      await expect(userPage.locator("article")).toHaveCount(2);
       await expect(
         userPage.getByText("Boost your conversion rate"),
       ).toBeVisible();
@@ -104,7 +104,7 @@ test.describe("ADMIN LIST SCREEN", () => {
       await userPage
         .getByLabel("Filter by Date Created:")
         .pressSequentially("01012022");
-      await expect(await userPage.locator("article").count()).toBe(1);
+      await expect(userPage.locator("article")).toHaveCount(1);
       await expect(
         userPage.getByText("No front end framework is the best"),
       ).toBeVisible();
@@ -120,6 +120,7 @@ test.describe("ADMIN LIST SCREEN", () => {
       await userPage.goto("/");
 
       // LIST SCREEN > Users can sort posts by name or creation date, both ascending and descending
+      await expect(userPage.locator("article")).toHaveCount(4);
 
       // title-asc
       await userPage.getByLabel("Sort By:").selectOption("title-asc");

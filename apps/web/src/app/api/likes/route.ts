@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 function getClientIp(headersList: Headers) {
   const forwardedFor = headersList.get("x-forwarded-for");
   if (forwardedFor) {
-    return forwardedFor.split(",")[0].trim();
+    return forwardedFor.split(",")[0]?.trim() || headersList.get("x-real-ip") || "127.0.0.1";
   }
 
   return headersList.get("x-real-ip") ?? "127.0.0.1";
