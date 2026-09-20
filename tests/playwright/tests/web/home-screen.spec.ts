@@ -167,4 +167,20 @@ test.describe("HOME SCREEN", () => {
       await expect(page).toHaveURL("/search?q=Fatboy");
     },
   );
+
+  test(
+    "Paginate posts",
+    {
+      tag: "@a3",
+    },
+    async ({ page }) => {
+      await page.goto("/?page=1");
+      await expect(page.getByTestId("pagination")).toContainText("Page 1");
+      await expect(page.locator("article")).toHaveCount(2);
+      await page.getByRole("link", { name: "Next" }).click();
+      await expect(page).toHaveURL("/?page=2");
+      await expect(page.locator("article")).toHaveCount(1);
+      await expect(page.getByTestId("pagination")).toContainText("Page 2");
+    },
+  );
 });

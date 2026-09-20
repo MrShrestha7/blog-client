@@ -2,6 +2,7 @@ import { posts } from "./data.js";
 import { client } from "./client.js";
 
 export async function seed() {
+  await client.db.comment.deleteMany();
   await client.db.like.deleteMany();
   await client.db.post.deleteMany();
 

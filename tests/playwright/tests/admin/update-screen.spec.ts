@@ -7,6 +7,22 @@ test.beforeEach(async () => {
 
 test.describe("ADMIN UPDATE SCREEN", () => {
   test(
+    "Rich text editor formats content",
+    {
+      tag: "@a3",
+    },
+    async ({ userPage }) => {
+      await userPage.goto("/post/no-front-end-framework-is-the-best");
+      const editor = userPage.getByLabel("Content");
+      await editor.fill("Formatted content");
+      await userPage.getByRole("button", { name: "Bold" }).click();
+      await expect(userPage.getByTestId("rich-text-editor")).toBeVisible();
+      await userPage.getByText("Save", { exact: true }).click();
+      await expect(userPage.getByText("Post updated successfully")).toBeVisible();
+    },
+  );
+
+  test(
     "Authorisation",
     {
       tag: "@a2",

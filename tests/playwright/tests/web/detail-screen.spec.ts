@@ -72,4 +72,22 @@ test.describe("DETAIL SCREEN", () => {
       await expect(page.getByText("3 likes")).toBeVisible();
     },
   );
+
+  test(
+    "Create nested comments",
+    {
+      tag: "@a3",
+    },
+    async ({ page }) => {
+      await page.goto("/post/boost-your-conversion-rate");
+      await page.getByLabel("comment-content").fill("First comment");
+      await page.getByRole("button", { name: "Post comment" }).click();
+      await expect(page.getByText("First comment")).toBeVisible();
+
+      await page.getByRole("button", { name: "Reply" }).click();
+      await page.getByLabel("comment-content").fill("Nested reply");
+      await page.getByRole("button", { name: "Post comment" }).click();
+      await expect(page.getByText("Nested reply")).toBeVisible();
+    },
+  );
 });

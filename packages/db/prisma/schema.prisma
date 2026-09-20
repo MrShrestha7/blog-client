@@ -35,6 +35,8 @@ model Post {
   active Boolean  @default(true)
   // Relationship to likes on this post
   Likes  Like[]
+  // Comments and nested replies on this post
+  Comments Comment[]
 }
 
 model Like {
@@ -43,4 +45,19 @@ model Like {
   Post   Post   @relation(fields: [postId], references: [id])
 
   @@id([postId, userIP])
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  postId    Int
+  parentId  Int?
+  content   String
+  authorIP  String
+  createdAt DateTime  @default(now())
+  Post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  Parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  Replies   Comment[] @relation("CommentReplies")
+
+  @@index([postId, createdAt])
+  @@index([parentId])
 }

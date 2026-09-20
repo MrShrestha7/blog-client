@@ -4,6 +4,7 @@ import type { Post } from "@repo/db/data";
 import Link from "next/link";
 import { marked } from "marked";
 import { useState } from "react";
+import { Comments } from "./Comments";
 
 function formatDate(date: Date) {
   const months = [
@@ -110,6 +111,7 @@ export function BlogDetail({ post }: { post: Post & { liked?: boolean } }) {
           className="prose prose-lg mt-10 max-w-none text-primary"
           dangerouslySetInnerHTML={{ __html: content }}
         />
+        <Comments postId={post.id} />
       </div>
     </article>
   );

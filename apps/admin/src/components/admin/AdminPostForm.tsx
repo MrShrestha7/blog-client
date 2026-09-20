@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { slugify } from "../../utils/admin-data";
 import { createPost, updatePost, type AdminPost } from "../../utils/posts-actions";
+import { RichTextEditor } from "./RichTextEditor";
 
 const emptyForm = {
   title: "",
@@ -43,6 +44,7 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
   );
 
   const [form, setForm] = useState(initialValues);
+  const formRef = useRef(initialValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [generalError, setGeneralError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -51,23 +53,26 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
   const previewHtml = useMemo(() => marked.parse(form.content || ""), [form.content]);
 
   const handleFieldChange = (field: keyof typeof emptyForm, value: string) => {
-    setForm((current) => ({ ...current, [field]: value }));
+    const nextForm = { ...formRef.current, [field]: value };
+    formRef.current = nextForm;
+    setForm(nextForm);
     setErrors((current) => ({ ...current, [field]: "" }));
     setGeneralError("");
   };
 
   const validate = () => {
+    const currentForm = formRef.current;
     const nextErrors: Record<string, string> = {};
 
-    if (!form.title.trim()) nextErrors.title = "Title is required";
-    if (!form.description.trim()) nextErrors.description = "Description is required";
-    else if (form.description.length > 200)
+    if (!currentForm.title.trim()) nextErrors.title = "Title is required";
+    if (!currentForm.description.trim()) nextErrors.description = "Description is required";
+    else if (currentForm.description.length > 200)
       nextErrors.description = "Description is too long. Maximum is 200 characters";
-    if (!form.content.trim()) nextErrors.content = "Content is required";
-    if (!form.imageUrl.trim()) nextErrors.imageUrl = "Image URL is required";
-    else if (!isValidUrl(form.imageUrl)) nextErrors.imageUrl = "This is not a valid URL";
+    if (!currentForm.content.trim()) nextErrors.content = "Content is required";
+    if (!currentForm.imageUrl.trim()) nextErrors.imageUrl = "Image URL is required";
+    else if (!isValidUrl(currentForm.imageUrl)) nextErrors.imageUrl = "This is not a valid URL";
 
-    const tagList = form.tags
+    const tagList = currentForm.tags
       .split(",")
       .map((tag) => tag.trim())
       .filter(Boolean);
@@ -85,14 +90,15 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
       return;
     }
 
+    const currentForm = formRef.current;
     const postInput = {
-      title: form.title,
-      category: form.category,
-      description: form.description,
-      content: form.content,
-      imageUrl: form.imageUrl,
-      tags: form.tags,
-      urlId: slugify(form.title),
+      title: currentForm.title,
+      category: currentForm.category,
+      description: currentForm.description,
+      content: currentForm.content,
+      imageUrl: currentForm.imageUrl,
+      tags: currentForm.tags,
+      urlId: mode === "edit" && initialPost ? initialPost.urlId : slugify(currentForm.title),
     };
 
     if (mode === "edit" && initialPost) {
@@ -195,12 +201,10 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
               style={{ minHeight: 220, border: "1px solid #d1d5db", borderRadius: 8, padding: 12 }}
             />
           ) : (
-            <textarea
-              id="content"
+            <RichTextEditor
               ref={textareaRef}
               value={form.content}
-              onChange={(event) => handleFieldChange("content", event.target.value)}
-              style={{ width: "100%", minHeight: 220, border: "1px solid #d1d5db", borderRadius: 8, padding: "10px 12px" }}
+              onChange={(value) => handleFieldChange("content", value)}
             />
           )}
 
