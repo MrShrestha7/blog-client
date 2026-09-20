@@ -1,56 +1,67 @@
 "use client";
 
-import { forwardRef, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { marked } from "marked";
 
 type RichTextEditorProps = {
   value: string;
   onChange: (value: string) => void;
 };
 
-export const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(function RichTextEditor(
+function toEditorHtml(value: string) {
+  return /<\/?[a-z][\s\S]*>/i.test(value) ? value : (marked.parse(value || "") as string);
+}
+
+export const RichTextEditor = forwardRef<HTMLDivElement, RichTextEditorProps>(function RichTextEditor(
   { value, onChange },
   ref,
 ) {
-  const localRef = useRef<HTMLTextAreaElement | null>(null);
+  const editorRef = useRef<HTMLDivElement | null>(null);
+  const lastValueRef = useRef("");
 
-  const textareaRef = ref ?? localRef;
+  useImperativeHandle(ref, () => editorRef.current as HTMLDivElement);
 
-  const applyFormat = (prefix: string, suffix = prefix) => {
-    const textarea = textareaRef && "current" in textareaRef ? textareaRef.current : null;
-    if (!textarea) return;
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor || document.activeElement === editor || lastValueRef.current === value) return;
 
-    const start = textarea.selectionStart ?? 0;
-    const end = textarea.selectionEnd ?? textarea.value.length;
-    const selected = textarea.value.slice(start, end) || "text";
-    const nextValue = `${textarea.value.slice(0, start)}${prefix}${selected}${suffix}${textarea.value.slice(end)}`;
+    editor.innerHTML = toEditorHtml(value);
+    lastValueRef.current = value;
+  }, [value]);
 
+  const applyFormat = (command: "bold" | "italic" | "insertUnorderedList" | "formatBlock") => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    document.execCommand(command, false, command === "formatBlock" ? "h2" : undefined);
+    const nextValue = editor.innerHTML;
+    lastValueRef.current = nextValue;
     onChange(nextValue);
-
-    requestAnimationFrame(() => {
-      textarea.focus();
-      const newStart = start + prefix.length;
-      const newEnd = newStart + selected.length;
-      textarea.setSelectionRange(newStart, newEnd);
-    });
   };
 
   return (
-    <div data-test-id="rich-text-editor" className="overflow-hidden rounded-md border border-slate-300">
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 bg-slate-50 p-2">
-        <button type="button" aria-label="Bold" onClick={() => applyFormat("<strong>", "</strong>")} className="rounded border px-2 py-1 font-bold">B</button>
-        <button type="button" aria-label="Italic" onClick={() => applyFormat("<em>", "</em>")} className="rounded border px-2 py-1 italic">I</button>
-        <button type="button" aria-label="Bullet list" onClick={() => applyFormat("<ul><li>", "</li></ul>")} className="rounded border px-2 py-1">List</button>
-        <button type="button" aria-label="Heading" onClick={() => applyFormat("<h2>", "</h2>")} className="rounded border px-2 py-1">H2</button>
+    <div data-test-id="rich-text-editor" className="overflow-hidden rounded-md border border-slate-300 dark:border-slate-600">
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 bg-slate-100 p-2 dark:border-slate-600 dark:bg-slate-800">
+        <button type="button" aria-label="Bold" title="Bold" onMouseDown={(event) => event.preventDefault()} onClick={() => applyFormat("bold")} className="rounded border border-slate-500 bg-white px-2 py-1 font-bold text-slate-900 hover:bg-sky-100 dark:border-slate-400 dark:bg-slate-700 dark:text-white dark:hover:bg-sky-700">B</button>
+        <button type="button" aria-label="Italic" title="Italic" onMouseDown={(event) => event.preventDefault()} onClick={() => applyFormat("italic")} className="rounded border border-slate-500 bg-white px-2 py-1 italic text-slate-900 hover:bg-sky-100 dark:border-slate-400 dark:bg-slate-700 dark:text-white dark:hover:bg-sky-700">I</button>
+        <button type="button" aria-label="Bullet list" title="Bullet list" onMouseDown={(event) => event.preventDefault()} onClick={() => applyFormat("insertUnorderedList")} className="rounded border border-slate-500 bg-white px-2 py-1 text-slate-900 hover:bg-sky-100 dark:border-slate-400 dark:bg-slate-700 dark:text-white dark:hover:bg-sky-700">List</button>
+        <button type="button" aria-label="Heading" title="Heading" onMouseDown={(event) => event.preventDefault()} onClick={() => applyFormat("formatBlock")} className="rounded border border-slate-500 bg-white px-2 py-1 text-slate-900 hover:bg-sky-100 dark:border-slate-400 dark:bg-slate-700 dark:text-white dark:hover:bg-sky-700">H2</button>
       </div>
-
-      <textarea
-        ref={textareaRef}
+      <div
+        ref={editorRef}
         id="content"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
+        role="textbox"
         aria-label="Content"
-        className="min-h-[220px] w-full resize-y border-0 p-3 outline-none"
-        style={{ fontFamily: "inherit" }}
+        aria-multiline="true"
+        contentEditable
+        suppressContentEditableWarning
+        onInput={(event) => {
+          const nextValue = event.currentTarget.innerHTML;
+          lastValueRef.current = nextValue;
+          onChange(nextValue);
+        }}
+        className="min-h-[220px] w-full whitespace-pre-wrap bg-white p-3 text-slate-900 outline-none dark:bg-slate-950 dark:text-slate-100"
       />
     </div>
   );

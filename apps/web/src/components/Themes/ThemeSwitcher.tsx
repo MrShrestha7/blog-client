@@ -43,6 +43,7 @@ const ThemeSwitch = () => {
 
     // Save preference to localStorage for persistence across visits
     localStorage.setItem("theme", newTheme);
+    document.cookie = `theme=${newTheme}; path=/; max-age=31536000; samesite=lax`;
 
     // Update component state
     setTheme(newTheme);

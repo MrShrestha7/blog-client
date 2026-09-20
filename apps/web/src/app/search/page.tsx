@@ -1,6 +1,7 @@
 import { client } from "@repo/db/client";
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
+import styles from "./page.module.css";
 
 type SearchParams = {
   q?: string;
@@ -46,7 +47,10 @@ export default async function Page({
 
   return (
     <AppLayout query={q}>
-      <Main posts={mappedPosts} />
+      <section className={styles.searchResults}>
+        <p className={styles.eyebrow}>Search results</p>
+        <Main posts={mappedPosts} />
+      </section>
     </AppLayout>
   );
 }

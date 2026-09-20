@@ -1,6 +1,5 @@
 import type { PropsWithChildren } from "react";
 import { Content } from "../Content";
-import { LeftMenu } from "../Menu/LeftMenu";
 import { TopMenu } from "./TopMenu";
 
 export function AppLayout({
@@ -8,15 +7,13 @@ export function AppLayout({
   query,
 }: PropsWithChildren<{ query?: string }>) {
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text)] md:flex">
-      <LeftMenu />
-
-      <div className="min-w-0 flex-1 md:pl-72">
-        <Content>
-          <TopMenu query={query} />
+    <div className="min-h-screen bg-[var(--canvas)] text-[var(--text)]">
+      <Content>
+        <TopMenu query={query} />
+        <div className="mx-auto max-w-[1180px] bg-[var(--surface)] px-6 py-8 md:px-12 md:py-10">
           {children}
-        </Content>
-      </div>
+        </div>
+      </Content>
     </div>
   );
 }

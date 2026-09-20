@@ -50,10 +50,7 @@ export const posts = [
         id: 3,
         title: "No front end framework is the best",
         urlId: "no-front-end-framework-is-the-best",
-        description: `Illo sint voluptas. Error voluptates culpa eligendi. 
-       Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. 
-       Sed exercitationem placeat consectetur nulla deserunt vel 
-       iusto corrupti dicta laboris incididunt.`,
+        description: "Illo sint voluptas. Error voluptates culpa eligendi.",
         content: content + " ... post3",
         imageUrl: "https://plus.unsplash.com/premium_photo-1661517706036-a48d5fc8f2f5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
         date: new Date("Dec 16, 2024"),

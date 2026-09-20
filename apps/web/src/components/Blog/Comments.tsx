@@ -25,8 +25,12 @@ function CommentItem({
     <li className="border-l-2 border-slate-200 pl-4">
       <p className="text-sm font-semibold">{comment.author}</p>
       <p className="mt-1 whitespace-pre-wrap text-sm text-secondary">{comment.content}</p>
-      <button type="button" className="mt-2 text-xs underline" onClick={() => onReply(comment.id)}>
-        Reply
+      <button
+        type="button"
+        className="mt-3 inline-flex items-center gap-1.5 rounded-sm border border-sky-700 bg-sky-50 px-3 py-1.5 font-sans text-xs font-bold uppercase tracking-wide text-sky-900 transition-colors hover:bg-sky-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:border-sky-300 dark:bg-transparent dark:text-sky-200 dark:hover:bg-sky-300 dark:hover:text-slate-950 dark:focus:ring-offset-slate-900"
+        onClick={() => onReply(comment.id)}
+      >
+        Reply <span aria-hidden="true">↗</span>
       </button>
       {replies.length > 0 ? (
         <ul className="mt-4 grid gap-4">
@@ -86,7 +90,7 @@ export function Comments({ postId }: { postId: number }) {
         <label htmlFor="comment-content" className="font-medium">{replyTo ? "Reply to comment" : "Add a comment"}</label>
         <textarea id="comment-content" aria-label="comment-content" value={content} onChange={(event) => setContent(event.target.value)} rows={4} className="rounded-md border border-slate-300 p-3" maxLength={1000} />
         <div className="flex gap-3">
-          <button type="button" onClick={() => void submitComment()} disabled={!content.trim()} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50">Post comment</button>
+          <button type="button" onClick={() => void submitComment()} disabled={!content.trim()} className="rounded-md bg-sky-700 px-4 py-2 text-sm font-medium text-white hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-slate-500 disabled:text-slate-100 dark:bg-sky-400 dark:text-slate-950 dark:hover:bg-sky-300 dark:disabled:bg-slate-600 dark:disabled:text-slate-200">Post comment</button>
           {replyTo ? <button type="button" onClick={() => setReplyTo(null)} className="text-sm underline">Cancel reply</button> : null}
         </div>
         {error ? <p role="alert" className="text-sm text-red-700">{error}</p> : null}

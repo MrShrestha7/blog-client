@@ -29,8 +29,7 @@ function isValidUrl(value: string) {
 
 export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initialPost?: AdminPost }) {
   const router = useRouter();
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
+  const textareaRef = useRef<HTMLDivElement | null>(null);
   const initialValues = useMemo(
     () => ({
       title: initialPost?.title ?? emptyForm.title,
@@ -66,7 +65,7 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
     const currentForm = formRef.current;
     const nextErrors: Record<string, string> = {};
 
-    if (!currentForm.title.trim()) nextErrors.title = "Title is required";
+  const textareaRef = useRef<HTMLDivElement | null>(null);
     if (!currentForm.description.trim()) nextErrors.description = "Description is required";
     else if (currentForm.description.length > 200)
       nextErrors.description = "Description is too long. Maximum is 200 characters";
@@ -112,6 +111,10 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
     setErrors({});
     setGeneralError("");
     setSuccessMessage("Post updated successfully");
+    if (mode === "create") {
+      window.setTimeout(() => router.push("/"), 1000);
+      return;
+    }
     router.refresh();
   };
 
@@ -138,27 +141,13 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
   };
 
   const handlePreviewToggle = () => {
-    if (!showPreview && textareaRef.current) {
-      // Saving selection before opening preview
-      selectionRef.current = {
-        start: textareaRef.current.selectionStart ?? 0,
-        end: textareaRef.current.selectionEnd ?? 0,
-      };
-    }
     setShowPreview((current) => !current);
   };
 
   // Restore selection when closing preview
   useEffect(() => {
     if (!showPreview && textareaRef.current) {
-      const { start, end } = selectionRef.current;
-      // Use a microtask to ensure DOM has updated
-      Promise.resolve().then(() => {
-        if (textareaRef.current) {
-          textareaRef.current.focus();
-          textareaRef.current.setSelectionRange(start, end);
-        }
-      });
+      textareaRef.current.focus();
     }
   }, [showPreview]);
 

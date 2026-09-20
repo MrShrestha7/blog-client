@@ -1,6 +1,7 @@
 "use client";
 
 import type { ChangeEvent, FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ThemeSwitch from "../Themes/ThemeSwitcher";
 
@@ -51,12 +52,16 @@ export function TopMenu({ query = "" }: { query?: string }) {
   }
 
   return (
-    <header className="flex items-center gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+    <header className="mx-auto grid max-w-[1180px] grid-cols-[auto_1fr_auto] items-center gap-5 border-b border-[var(--rule)] bg-[var(--surface)] px-6 py-6 md:px-12">
+      <Link href="/" className="flex items-center gap-2.5 whitespace-nowrap font-serif text-2xl font-bold italic text-[var(--text)] no-underline md:text-3xl">
+        <span className="grid h-10 w-10 place-items-center rounded-full bg-[#1f537b] font-sans text-base not-italic text-[#72d1de]">fs</span>
+        field notes
+      </Link>
       <form
         action="/search"
         method="GET"
         onSubmit={handleSubmit}
-        className="relative flex-1"
+        className="relative min-w-0"
       >
         <label htmlFor="blog-search" className="sr-only">
           Search blog posts
@@ -68,13 +73,18 @@ export function TopMenu({ query = "" }: { query?: string }) {
           type="search"
           defaultValue={query}
           onChange={handleSearch}
-          placeholder="Search blog posts"
+          placeholder="Search the archive"
           autoComplete="off"
-          className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-primary outline-none focus:border-wsu focus:ring-2 focus:ring-wsu/20 dark:border-gray-700"
+          className="w-full border-b border-[var(--rule)] bg-transparent px-1 py-2 font-sans text-sm text-[var(--text)] outline-none placeholder:text-[var(--text-secondary)] focus:border-[var(--accent)]"
         />
       </form>
 
-      <ThemeSwitch />
+      <div className="flex items-center gap-3">
+        <Link href="/" className="hidden font-sans text-xs text-[var(--text-secondary)] no-underline sm:block">Latest stories</Link>
+        <Link href="/about" className="font-sans text-xs text-[var(--text-secondary)] no-underline hover:text-[var(--accent)]">About</Link>
+        <Link href="/contact" className="font-sans text-xs text-[var(--text-secondary)] no-underline hover:text-[var(--accent)]">Contact</Link>
+        <ThemeSwitch />
+      </div>
     </header>
   );
 }

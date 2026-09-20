@@ -1,0 +1,20 @@
+.searchResults {
+  background: #ffe89a;
+  border: 1px solid #d8bb50;
+  padding: clamp(1.25rem, 4vw, 3rem);
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  color: #247ea1;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+:global(html[data-theme="dark"]) .searchResults {
+  background: #18273c;
+  border-color: #304d6b;
+}
