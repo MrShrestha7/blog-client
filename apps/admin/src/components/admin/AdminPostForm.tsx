@@ -49,6 +49,8 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
   const [generalError, setGeneralError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   const previewHtml = useMemo(() => marked.parse(form.content || ""), [form.content]);
 
@@ -111,6 +113,28 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
     setGeneralError("");
     setSuccessMessage("Post updated successfully");
     router.refresh();
+  };
+
+  const handleImageUpload = async (file: File | undefined) => {
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadError("");
+    const uploadData = new FormData();
+    uploadData.set("image", file);
+
+    try {
+      const response = await fetch("/api/uploads", { method: "POST", body: uploadData });
+      const result = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !result.url) {
+        throw new Error(result.error ?? "Image upload failed");
+      }
+      handleFieldChange("imageUrl", result.url);
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "Image upload failed");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handlePreviewToggle = () => {
@@ -234,6 +258,19 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
             style={{ border: "1px solid #d1d5db", borderRadius: 8, padding: "10px 12px" }}
           />
           {errors.imageUrl ? <span style={{ color: "#b91c1c" }}>{errors.imageUrl}</span> : null}
+        </label>
+
+        <label htmlFor="imageUpload" style={{ display: "grid", gap: 6, fontWeight: 600 }}>
+          Upload image
+          <input
+            id="imageUpload"
+            type="file"
+            accept="image/*"
+            onChange={(event) => void handleImageUpload(event.target.files?.[0])}
+            disabled={isUploading}
+          />
+          {isUploading ? <span>Uploading image...</span> : null}
+          {uploadError ? <span role="alert" style={{ color: "#b91c1c" }}>{uploadError}</span> : null}
         </label>
 
         <div>

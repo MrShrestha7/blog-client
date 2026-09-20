@@ -9,6 +9,9 @@ export const env = createEnv({
   server: {
     PASSWORD: z.string(),
     JWT_SECRET: z.string(),
+    CLOUDINARY_CLOUD_NAME: z.string().optional(),
+    CLOUDINARY_API_KEY: z.string().optional(),
+    CLOUDINARY_API_SECRET: z.string().optional(),
   },
 
   /**
@@ -28,6 +31,9 @@ export const env = createEnv({
     // E2E: process.env.E2E,
     PASSWORD: process.env.PASSWORD,
     JWT_SECRET: process.env.JWT_SECRET,
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

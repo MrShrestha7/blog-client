@@ -165,6 +165,14 @@ pnpx playwright install
 
 In all packages `apps/admin` and `packages/db` find `.env.example` files and copy them to `.env`. Set your environment variables accordingly!
 
+To enable image uploads in the admin post form, add your Cloudinary credentials to `apps/admin/.env`:
+
+```
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
 ## Running the project
 
 To run the project, run the following command in the root directory of your project:
