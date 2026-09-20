@@ -173,6 +173,12 @@ CLOUDINARY_API_KEY=your-api-key
 CLOUDINARY_API_SECRET=your-api-secret
 ```
 
+### Deploying with Neon and Vercel
+
+This project uses PostgreSQL in deployed environments. Create a Neon PostgreSQL database, then add its connection string as `DATABASE_URL` in both Vercel projects. Add `PASSWORD` and `JWT_SECRET` to the admin project as well.
+
+Vercel automatically uses the `vercel-build` script in each app. It applies Prisma migrations before building, so a new Neon database receives the required tables during the first deployment.
+
 ## Running the project
 
 To run the project, run the following command in the root directory of your project:
