@@ -65,6 +65,7 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
     const currentForm = formRef.current;
     const nextErrors: Record<string, string> = {};
 
+    if (!currentForm.title.trim()) nextErrors.title = "Title is required";
     if (!currentForm.description.trim()) nextErrors.description = "Description is required";
     else if (currentForm.description.length > 200)
       nextErrors.description = "Description is too long. Maximum is 200 characters";

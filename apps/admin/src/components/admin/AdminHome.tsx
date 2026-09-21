@@ -119,7 +119,7 @@ export default function AdminHome() {
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32, paddingBottom: 24, borderBottom: "1px solid var(--text-secondary)" }}>
         <div>
           <p style={{ margin: "0 0 6px", color: "var(--wsu)", fontFamily: "system-ui", fontSize: 12, fontWeight: 800, textTransform: "uppercase" }}>Field notes</p>
-          <h1 style={{ margin: 0, fontSize: 42 }}>Editorial desk</h1>
+          <h1 style={{ margin: 0, fontSize: 42 }}>Admin of Full Stack Blog</h1>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
           <button type="button" onClick={toggleTheme} style={{ background: "transparent", color: "var(--text)", border: "1px solid var(--text-secondary)", borderRadius: 6, padding: "10px 14px", cursor: "pointer" }}>{theme === "light" ? "Dark mode" : "Light mode"}</button>

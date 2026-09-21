@@ -1,6 +1,7 @@
 import { posts } from "./data";
 import { client } from "./client";
 export async function seed() {
+        await client.db.comment.deleteMany();
     await client.db.like.deleteMany();
     await client.db.post.deleteMany();
     for (const post of posts) {

@@ -1,6 +1,10 @@
 import { client } from "@repo/db/client";
 import Link from "next/link";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { CategoryList } from "@/components/Menu/CategoryList";
+import { HistoryList } from "@/components/Menu/HistoryList";
+import { TagList } from "@/components/Menu/TagList";
+import { TopMenu } from "@/components/Layout/TopMenu";
 import styles from "./page.module.css";
 
 export default async function Home() {
@@ -15,36 +19,17 @@ export default async function Home() {
     date: new Date(post.date),
     likes: post._count.Likes,
   }));
-  const [leadPost, ...popularPosts] = mappedPosts;
+  const visiblePosts = [...mappedPosts].sort((first, second) => first.id - second.id);
+  const [leadPost, ...popularPosts] = visiblePosts;
   const topics = [...new Set(mappedPosts.map((post) => post.category))];
 
   return (
     <main className={styles.page}>
-      <header className={styles.masthead}>
-        <Link href="/" className={styles.brand}>
-          <span className={styles.brandMark}>fn</span>
-          <span>field notes</span>
-        </Link>
-        <nav aria-label="Blog topics" className={styles.topicNav}>
-          {topics.map((topic) => (
-            <Link key={topic} href={`/category/${topic.toLowerCase().replace(/\s+/g, "-")}`}>
-              {topic}
-            </Link>
-          ))}
-        </nav>
-        <div className={styles.pageNav}>
-          <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
-          <a href="https://www.facebook.com/" aria-label="Facebook" className={styles.socialIcon}>f</a>
-          <a href="https://x.com/" aria-label="X" className={styles.socialIcon}>X</a>
-          <a href="https://www.instagram.com/" aria-label="Instagram" className={styles.socialIcon}>◎</a>
-          <Link href="/search" aria-label="Search posts" className={styles.searchButton}>Search</Link>
-        </div>
-      </header>
+      <TopMenu />
 
       <section
         className={styles.intro}
-        style={{ backgroundImage: "linear-gradient(90deg, rgba(13, 31, 48, .78), rgba(13, 31, 48, .18)), url(https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1800&q=85)" }}
+        style={{ backgroundImage: "linear-gradient(90deg, rgba(13, 31, 48, .78), rgba(13, 31, 48, .18)), url(https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1800&q=85)" }}
       >
         <p className={styles.welcome}>Welcome to</p>
         <h1>Field Notes</h1>
@@ -64,8 +49,9 @@ export default async function Home() {
                 <Link href={`/post/${leadPost.urlId}`}>{leadPost.title}</Link>
               </h1>
               <p className={styles.description}>{leadPost.description}</p>
+              <p>{leadPost.tags.split(",").map((tag) => `#${tag.trim()}`).join(" ")}</p>
               <div className={styles.metadata}>
-                <span>{leadPost.date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+                <span>{leadPost.date.toLocaleDateString("en-GB", { month: "short", day: "2-digit", year: "numeric" })}</span>
                 <span>{leadPost.views} views</span>
                 <span>{leadPost.likes} likes</span>
               </div>
@@ -86,12 +72,21 @@ export default async function Home() {
                 <div>
                   <p className={styles.itemKicker}>{post.category}</p>
                   <h3><Link href={`/post/${post.urlId}`}>{post.title}</Link></h3>
+                  <p>{post.tags.split(",").map((tag) => `#${tag.trim()}`).join(" ")}</p>
                   <time dateTime={post.date.toISOString()}>{post.date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</time>
+                  <p>{post.views} views</p>
+                  <p>{post.likes} likes</p>
                 </div>
               </article>
             ))}
           </div>
         </aside>
+      </section>
+
+      <section aria-label="Browse blog archive" style={{ display: "grid", gap: 24, gridTemplateColumns: "repeat(3, minmax(0, 1fr))", maxWidth: 1180, margin: "0 auto", padding: "32px 42px" }}>
+        <CategoryList posts={mappedPosts} />
+        <HistoryList posts={mappedPosts} />
+        <TagList posts={mappedPosts} />
       </section>
 
       <section className={styles.discovery}>

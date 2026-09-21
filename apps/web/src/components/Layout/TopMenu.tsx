@@ -80,7 +80,10 @@ export function TopMenu({ query = "" }: { query?: string }) {
       </form>
 
       <div className="flex items-center gap-3">
-        <Link href="/" className="hidden font-sans text-xs text-[var(--text-secondary)] no-underline sm:block">Latest stories</Link>
+        <span className="hidden font-sans text-xs text-[var(--text-secondary)] lg:inline">Follow us</span>
+        <a href="https://www.facebook.com/" target="_blank" rel="noreferrer" aria-label="Follow us on Facebook" title="Facebook" className="grid h-7 w-7 place-items-center rounded-full border border-[var(--rule)] font-sans text-sm font-bold text-[var(--text-secondary)] no-underline hover:border-[var(--accent)] hover:text-[var(--accent)]">f</a>
+        <a href="https://twitter.com/" target="_blank" rel="noreferrer" aria-label="Follow us on Twitter" title="Twitter" className="grid h-7 w-7 place-items-center rounded-full border border-[var(--rule)] font-sans text-xs font-bold text-[var(--text-secondary)] no-underline hover:border-[var(--accent)] hover:text-[var(--accent)]">X</a>
+        <a href="https://www.instagram.com/" target="_blank" rel="noreferrer" aria-label="Follow us on Instagram" title="Instagram" className="grid h-7 w-7 place-items-center rounded-full border border-[var(--rule)] font-sans text-sm font-bold text-[var(--text-secondary)] no-underline hover:border-[var(--accent)] hover:text-[var(--accent)]">◎</a>
         <Link href="/about" className="font-sans text-xs text-[var(--text-secondary)] no-underline hover:text-[var(--accent)]">About</Link>
         <Link href="/contact" className="font-sans text-xs text-[var(--text-secondary)] no-underline hover:text-[var(--accent)]">Contact</Link>
         <ThemeSwitch />

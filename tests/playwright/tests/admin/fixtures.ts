@@ -1,9 +1,12 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 
 import { test as base, type BrowserContext, type Page } from "@playwright/test";
+
+dotenv.config({ path: path.resolve(process.cwd(), "apps/admin/.env"), override: true });
+dotenv.config({ path: path.resolve(process.cwd(), "../../apps/admin/.env"), override: true });
 
 export const e2epassword = "superpassword";
 
@@ -71,6 +74,29 @@ type MyFixtures = {
   userPage: Page;
 };
 
+function addNavigationRetry(page: Page) {
+  const originalGoto = page.goto.bind(page);
+
+  Object.defineProperty(page, "goto", {
+    configurable: true,
+    value: async (url: string, options?: Parameters<Page["goto"]>[1]) => {
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          return await originalGoto(url, options);
+        } catch (error) {
+          if (attempt === 2 || !(error instanceof Error && error.message.includes("ERR_ABORTED"))) {
+            throw error;
+          }
+        }
+      }
+
+      return null;
+    },
+  });
+
+  return page;
+}
+
 type AppOptions = {};
 
 export function createOptions(options: Partial<AppOptions>) {
@@ -93,12 +119,19 @@ export async function setOptions(
 export * from "@playwright/test";
 export const test = base.extend<MyFixtures>({
   userPage: async ({ browser }, use) => {
-    ensureAuthStorage();
-    const context = await browser.newContext({
-      storageState: authFile,
-    });
+    const context = await browser.newContext();
     const userPage = await context.newPage();
+    addNavigationRetry(userPage);
+    await userPage.goto("/");
+    const loginPassword = process.env.PASSWORD ?? "123";
+    if (await userPage.getByText("Sign in to your account", { exact: true }).isVisible()) {
+      await userPage.getByLabel("Password").fill(loginPassword);
+      await userPage.getByRole("button", { name: "Sign In" }).click();
+    }
     await use(userPage);
     await context.close();
+  },
+  page: async ({ page }, use) => {
+    await use(addNavigationRetry(page));
   },
 });
