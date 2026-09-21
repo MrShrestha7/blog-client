@@ -65,7 +65,6 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
     const currentForm = formRef.current;
     const nextErrors: Record<string, string> = {};
 
-  const textareaRef = useRef<HTMLDivElement | null>(null);
     if (!currentForm.description.trim()) nextErrors.description = "Description is required";
     else if (currentForm.description.length > 200)
       nextErrors.description = "Description is too long. Maximum is 200 characters";
@@ -102,15 +101,21 @@ export default function AdminPostForm({ mode, initialPost }: { mode: Mode; initi
       urlId: mode === "edit" && initialPost ? initialPost.urlId : slugify(currentForm.title),
     };
 
-    if (mode === "edit" && initialPost) {
-      await updatePost(initialPost.id, postInput);
-    } else {
-      await createPost({ ...postInput, urlId: postInput.urlId || `post-${Date.now()}` });
+    try {
+      if (mode === "edit" && initialPost) {
+        await updatePost(initialPost.id, postInput);
+      } else {
+        await createPost({ ...postInput, urlId: postInput.urlId || `post-${Date.now()}` });
+      }
+    } catch (error) {
+      setSuccessMessage("");
+      setGeneralError(error instanceof Error ? error.message : "Unable to save post");
+      return;
     }
 
     setErrors({});
     setGeneralError("");
-    setSuccessMessage("Post updated successfully");
+    setSuccessMessage(mode === "create" ? "Post created successfully" : "Post updated successfully");
     if (mode === "create") {
       window.setTimeout(() => router.push("/"), 1000);
       return;

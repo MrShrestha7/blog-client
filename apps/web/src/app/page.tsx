@@ -1,21 +1,12 @@
 import { client } from "@repo/db/client";
 import Link from "next/link";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 import styles from "./page.module.css";
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) {
-  const params = await searchParams;
-  const page = Math.max(1, Number(params.page) || 1);
-  const pageSize = params.page ? 2 : 4;
-  const totalPosts = await client.db.post.count({ where: { active: true } });
+export default async function Home() {
   const posts = await client.db.post.findMany({
     where: { active: true },
     orderBy: { date: "desc" },
-    skip: (page - 1) * pageSize,
-    take: pageSize,
     include: { _count: { select: { Likes: true } } },
   });
 
@@ -24,7 +15,6 @@ export default async function Home({
     date: new Date(post.date),
     likes: post._count.Likes,
   }));
-  const hasNextPage = page * pageSize < totalPosts;
   const [leadPost, ...popularPosts] = mappedPosts;
   const topics = [...new Set(mappedPosts.map((post) => post.category))];
 
@@ -32,7 +22,7 @@ export default async function Home({
     <main className={styles.page}>
       <header className={styles.masthead}>
         <Link href="/" className={styles.brand}>
-          <span className={styles.brandMark}>fs</span>
+          <span className={styles.brandMark}>fn</span>
           <span>field notes</span>
         </Link>
         <nav aria-label="Blog topics" className={styles.topicNav}>
@@ -45,13 +35,21 @@ export default async function Home({
         <div className={styles.pageNav}>
           <Link href="/about">About</Link>
           <Link href="/contact">Contact</Link>
+          <a href="https://www.facebook.com/" aria-label="Facebook" className={styles.socialIcon}>f</a>
+          <a href="https://x.com/" aria-label="X" className={styles.socialIcon}>X</a>
+          <a href="https://www.instagram.com/" aria-label="Instagram" className={styles.socialIcon}>◎</a>
           <Link href="/search" aria-label="Search posts" className={styles.searchButton}>Search</Link>
         </div>
       </header>
 
-      <section className={styles.intro}>
-        <p>Independent notes for people building on the web</p>
-        <h1>Make better digital work, one practical story at a time.</h1>
+      <section
+        className={styles.intro}
+        style={{ backgroundImage: "linear-gradient(90deg, rgba(13, 31, 48, .78), rgba(13, 31, 48, .18)), url(https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1800&q=85)" }}
+      >
+        <p className={styles.welcome}>Welcome to</p>
+        <h1>Field Notes</h1>
+        <p className={styles.introDetail}>Interested in technology? Write and share your digital experiences.</p>
+        <Link href="/search" className={styles.heroButton}>Read blog</Link>
       </section>
 
       <section className={styles.content}>
@@ -113,17 +111,11 @@ export default async function Home({
 
       <section className={styles.updates}>
         <div>
-          <p className={styles.kicker}>Stay in the loop</p>
-          <h2>New practical notes, without the noise.</h2>
+          <h2>Get every new post<br />delivered to your inbox.</h2>
         </div>
-        <Link href="/search" className={styles.updatesLink}>Browse latest stories</Link>
+        <NewsletterSignup />
+        <Link href="/search" className={styles.updatesBrowse}>Browse latest stories</Link>
       </section>
-
-      <nav aria-label="Post pages" data-test-id="pagination" className={styles.pagination}>
-        <Link aria-disabled={page === 1} className={page === 1 ? styles.disabled : ""} href={page > 1 ? `/?page=${page - 1}` : "/"}>Previous</Link>
-        <span>Page {page}</span>
-        <Link aria-disabled={!hasNextPage} className={!hasNextPage ? styles.disabled : ""} href={hasNextPage ? `/?page=${page + 1}` : `/?page=${page}`}>Next</Link>
-      </nav>
     </main>
   );
 }

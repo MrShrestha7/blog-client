@@ -86,10 +86,19 @@ export type PostInput = {
 };
 
 export async function createPost(data: PostInput): Promise<AdminPost> {
+  const baseUrlId = data.urlId || "post";
+  let urlId = baseUrlId;
+  let suffix = 2;
+
+  while (await client.db.post.findUnique({ where: { urlId } })) {
+    urlId = `${baseUrlId}-${suffix}`;
+    suffix += 1;
+  }
+
   const created = await client.db.post.create({
     data: {
       title: data.title,
-      urlId: data.urlId,
+      urlId,
       category: data.category,
       description: data.description,
       content: data.content,

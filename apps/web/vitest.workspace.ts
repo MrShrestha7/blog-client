@@ -37,4 +37,19 @@ export default defineWorkspace([
       },
     },
   },
+  {
+    resolve: {
+      alias: {
+        "next/link": path.resolve(__dirname, "src/mocks/link"),
+      },
+    },
+    plugins: [react()],
+    test: {
+      // jsdom + React Testing Library component tests
+      include: ["./src/**/*.dom.{test,spec}.tsx"],
+      setupFiles: "./vitest.setup.dom.ts",
+      name: "dom",
+      environment: "jsdom",
+    },
+  },
 ]);

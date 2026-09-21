@@ -22,7 +22,7 @@ function formatDate(date: Date) {
   } ${date.getFullYear()}`;
 }
 
-export function BlogListItem({ post }: { post: Post }) {
+export function BlogListItem({ post, view = "list" }: { post: Post; view?: "list" | "grid" }) {
   const postTags = post.tags
     .split(",")
     .map((tag) => tag.trim())
@@ -30,14 +30,14 @@ export function BlogListItem({ post }: { post: Post }) {
 
   return (
     <article
-      className="grid gap-6 border-b border-[#e4e8ef] py-8 md:grid-cols-[280px_1fr]"
+      className={view === "grid" ? "min-w-0" : "grid gap-6 border-b border-[#e4e8ef] py-8 md:grid-cols-[280px_1fr]"}
       data-test-id={`blog-post-${post.id}`}
     >
       <Link href={`/post/${post.urlId}`} aria-label={post.title}>
         <img
           src={post.imageUrl}
           alt={post.title}
-          className="h-52 w-full object-cover md:h-44"
+          className={view === "grid" ? "aspect-square h-auto w-full object-cover" : "h-52 w-full object-cover md:h-44"}
         />
       </Link>
 
@@ -49,13 +49,13 @@ export function BlogListItem({ post }: { post: Post }) {
           <span>{post.category}</span>
         </div>
 
-        <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-[#17213b]">
+        <h2 className={view === "grid" ? "mt-4 font-serif text-2xl font-bold leading-tight text-[var(--text)]" : "mt-3 font-serif text-3xl font-bold leading-tight text-[#17213b]"}>
           <Link href={`/post/${post.urlId}`} className="hover:text-[#247ea1]">
             {post.title}
           </Link>
         </h2>
 
-        <p className="mt-3 font-serif leading-7 text-[#657086]">{post.description}</p>
+        {view === "list" && <p className="mt-3 font-serif leading-7 text-[#657086]">{post.description}</p>}
 
         <div className="mt-4 flex flex-wrap gap-3">
           {postTags.map((tag) => (
@@ -65,7 +65,7 @@ export function BlogListItem({ post }: { post: Post }) {
           ))}
         </div>
 
-        <div className="mt-5 flex gap-6 border-t border-[#e4e8ef] pt-4 font-sans text-xs text-[#657086]">
+        <div className={view === "grid" ? "mt-4 flex gap-4 font-sans text-xs text-[#657086]" : "mt-5 flex gap-6 border-t border-[#e4e8ef] pt-4 font-sans text-xs text-[#657086]"}>
           <span>{post.views} views</span>
           <span>{post.likes} likes</span>
         </div>

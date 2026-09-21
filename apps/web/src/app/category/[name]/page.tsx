@@ -5,10 +5,14 @@ import { toUrlPath } from "@repo/utils/url";
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ name: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { name } = await params;
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, Number(pageParam) || 1);
 
   const posts = await client.db.post.findMany({
     where: { active: true },
@@ -29,7 +33,7 @@ export default async function Page({
 
   return (
     <AppLayout>
-      <Main posts={mappedPosts} />
+      <Main posts={mappedPosts} page={page} paginationPath={`/category/${name}`} />
     </AppLayout>
   );
 }

@@ -6,6 +6,7 @@ import styles from "./page.module.css";
 type SearchParams = {
   q?: string;
   tag?: string;
+  page?: string;
 };
 
 export default async function Page({
@@ -13,7 +14,8 @@ export default async function Page({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { q = "", tag = "" } = await searchParams;
+  const { q = "", tag = "", page: pageParam } = await searchParams;
+  const page = Math.max(1, Number(pageParam) || 1);
   const searchTerm = q.trim().toLowerCase();
   const tagTerm = tag.trim().toLowerCase();
 
@@ -49,7 +51,12 @@ export default async function Page({
     <AppLayout query={q}>
       <section className={styles.searchResults}>
         <p className={styles.eyebrow}>Search results</p>
-        <Main posts={mappedPosts} />
+        <Main
+          posts={mappedPosts}
+          page={page}
+          view="grid"
+          paginationPath={`/search?q=${encodeURIComponent(q)}${tag ? `&tag=${encodeURIComponent(tag)}` : ""}`}
+        />
       </section>
     </AppLayout>
   );

@@ -1,7 +1,7 @@
 import type { Post } from "@repo/db/data";
 import { BlogListItem } from "./ListItem";
 
-export function BlogList({ posts }: { posts: Post[] }) {
+export function BlogList({ posts, view = "list" }: { posts: Post[]; view?: "list" | "grid" }) {
   const activePosts = posts.filter((post) => post.active);
 
   return (
@@ -21,9 +21,9 @@ export function BlogList({ posts }: { posts: Post[] }) {
         {activePosts.length === 1 ? "Post" : "Posts"}
       </p>
 
-      <div>
+      <div className={view === "grid" ? "grid grid-cols-1 gap-x-9 gap-y-12 sm:grid-cols-2" : ""}>
         {activePosts.map((post) => (
-          <BlogListItem key={post.id} post={post} />
+          <BlogListItem key={post.id} post={post} view={view} />
         ))}
       </div>
     </section>
