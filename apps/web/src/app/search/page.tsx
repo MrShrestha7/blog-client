@@ -9,6 +9,17 @@ type SearchParams = {
   page?: string;
 };
 
+function normalizeSearchValue(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export default async function Page({
   searchParams,
 }: {
@@ -16,8 +27,8 @@ export default async function Page({
 }) {
   const { q = "", tag = "", page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
-  const searchTerm = q.trim().toLowerCase();
-  const tagTerm = tag.trim().toLowerCase();
+  const searchTerm = normalizeSearchValue(q);
+  const tagTerm = normalizeSearchValue(tag);
 
   const posts = await client.db.post.findMany({
     where: { active: true },
@@ -26,17 +37,22 @@ export default async function Page({
   });
 
   const filteredPosts = posts.filter((post) => {
+    const searchableText = normalizeSearchValue(
+      `${post.title} ${post.description} ${post.category} ${post.tags}`,
+    );
+    const searchTerms = searchTerm ? searchTerm.split(/\s+/).filter(Boolean) : [];
+
     const matchesSearch =
-      !searchTerm ||
-      post.title.toLowerCase().includes(searchTerm) ||
-      post.description.toLowerCase().includes(searchTerm);
+      searchTerms.length === 0 ||
+      searchTerms.every((term) => searchableText.includes(term));
 
     const matchesTag =
       !tagTerm ||
       post.tags
         .split(",")
-        .map((value) => value.trim().toLowerCase())
-        .includes(tagTerm);
+        .map((value) => normalizeSearchValue(value))
+        .includes(tagTerm) ||
+      normalizeSearchValue(post.category).includes(tagTerm);
 
     return matchesSearch && matchesTag;
   });

@@ -103,6 +103,21 @@ test.describe("SEARCH SCREEN", () => {
   );
 
   test(
+    "Search matches categories and tags with normalized text",
+    {
+      tag: "@a1",
+    },
+    async ({ page }) => {
+      await page.goto("/search?q=back+end");
+
+      const articles = await page.locator('[data-test-id^="blog-post-"]');
+      await expect(articles).toHaveCount(1);
+      await expect(page.getByTestId("blog-post-1")).toBeVisible();
+      await expect(page.getByText("Boost your conversion rate")).toBeVisible();
+    },
+  );
+
+  test(
     "Existing search result",
     {
       tag: "@a1",
